@@ -1,15 +1,21 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QGridLayout
+from PySide6.QtGui import QFocusEvent, QKeyEvent
+from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 
+from pisak.widgets.elements import PisakButton
 from pisak.widgets.scannable import PisakScannableWidget
-from pisak.widgets.strategies import Strategy, BackToParentStrategy
+from pisak.widgets.strategies import BackToParentStrategy, Strategy
 
 
-class PisakGridWidget(PisakScannableWidget):
+class PisakContainerWidget(PisakScannableWidget):
     def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):
         super().__init__(parent)
-        self._strategy = strategy
+        self._scanning_strategy = strategy
         self._layout = QGridLayout()
+
+    @property
+    def layout(self):
+        return self._layout
 
     def set_layout(self) -> None:
         for item in self._items:
@@ -19,9 +25,59 @@ class PisakGridWidget(PisakScannableWidget):
     def init_ui(self):
         self.setFocusPolicy(Qt.StrongFocus)
 
-class PisakRowWidget(PisakScannableWidget):
-    pass
+    def keyPressEvent(self, event: QKeyEvent):
+        """Intercept key press events."""
+        if event.key() == Qt.Key_1:
+            focused_widget = self.focusWidget()
+            if focused_widget in self.items:
+                self._scanning_worker.stop()
+                focused_widget.scan()
+                return
+        super().keyPressEvent(event)
+
+    def focusInEvent(self, event: QFocusEvent):
+        if event.gotFocus():
+            self.highlight_all()
+        else:
+            super().focusInEvent(event)
+
+    def focusOutEvent(self, event: QFocusEvent):
+        if event.lostFocus():
+            self.reset_highlight_all()
+        else:
+            super().focusOutEvent(event)
 
 
-class PisakColumnWidget(PisakScannableWidget):
-    pass
+class PisakGridWidget(PisakContainerWidget):
+    def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):
+        super().__init__(parent, strategy)
+        self._layout = QGridLayout()
+
+
+class PisakColumnWidget(PisakContainerWidget):
+    def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):
+        super().__init__(parent, strategy)
+        self._layout = QVBoxLayout()
+
+
+class PisakRowWidget(PisakContainerWidget):
+    def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):
+        super().__init__(parent, strategy)
+        self._layout = QHBoxLayout()
+
+    # PisakRowWidget should only contain PisakButtons
+    def add_item(self, item):
+        if not isinstance(item, PisakButton):
+            raise ValueError("Item should be PisakButton.")
+        self._items.append(item)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        """Intercept key press events."""
+        if event.key() == Qt.Key_1:
+            focused_widget = self.focusWidget()
+            if focused_widget in self.items:
+                self._scanning_worker.stop()
+                focused_widget.click()
+                self.parentWidget().scan()
+                return
+        super().keyPressEvent(event)

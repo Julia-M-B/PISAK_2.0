@@ -1,11 +1,11 @@
 from string import ascii_lowercase
 
+from pisak.widgets.containers import PisakColumnWidget, PisakRowWidget
 from pisak.widgets.elements import PisakButton
-from pisak.widgets.containers import PisakRowWidget, PisakColumnWidget
 from pisak.widgets.scannable import PisakScannableWidget
 
 
-class Keyboard(PisakRowWidget, PisakScannableWidget):
+class Keyboard(PisakColumnWidget, PisakScannableWidget):
     def __init__(self, parent=None, keyboard_layout=None, keyboard_dim=(4, 7)):
         super().__init__(parent)
         self._keyboard_layout = keyboard_layout
@@ -48,9 +48,9 @@ class Keyboard(PisakRowWidget, PisakScannableWidget):
 
     def _implement_layout(self):
         for row in self._keyboard_layout:
-            row_widget = PisakColumnWidget(parent=self)
+            row_widget = PisakRowWidget(parent=self)
             for letter in row:
-                button = PisakButton(parent=row_widget, label=str(letter))
+                button = PisakButton(parent=row_widget, text=str(letter))
                 row_widget.add_item(button)
             row_widget.set_layout()
             self.add_item(row_widget)

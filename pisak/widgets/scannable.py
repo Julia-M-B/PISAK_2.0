@@ -1,5 +1,4 @@
 import copy
-import time
 from time import sleep
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
@@ -40,18 +39,10 @@ class LoopItemsRunnable(QRunnable):
 
     def run(self):
         self.worker.run()
-        # t = time.time()
-        # while self.worker.running:
-        #     sleep(0.0005)
-        #     if time.time() - t > 3:
-        #         print("stoping")
-        #         self.worker.stop()
-        #     # sleep(0.05)
 
 
 class PisakScannableItem:
-    got_focus = NotImplemented
-    end_loop = NotImplemented
+    end_scan_signal = NotImplemented
 
     def __init__(self, *args, **kwargs):
         self._id = get_id()
@@ -114,13 +105,12 @@ class PisakScannableItem:
 
 
 class PisakScannableWidget(QWidget, PisakScannableItem):
-    got_focus = Signal(PisakScannableItem)
-    end_loop = Signal()
+    end_scan_signal = Signal()
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.end_loop.connect(self.loop_number_exceeded)
-        self.end_loop.connect(self.reset_scan)
+        self.end_scan_signal.connect(self.loop_number_exceeded)
+        self.end_scan_signal.connect(self.reset_scan)
 
     def add_item(self, item):
         if not isinstance(item, PisakScannableItem):
@@ -128,7 +118,6 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
         self._items.append(item)
 
     def scan(self):
-        print(self, "scan called")
         iter(self)
         pool = QThreadPool.globalInstance()
         self._scanning_worker = LoopItemsWorker()
@@ -138,17 +127,14 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
 
     def scan_item(self):
         if self._scanning_worker.loops_counter == SCAN_LOOP_NUMBER:
-            self.end_loop.emit()
+            print("Emitting end loop")
+            self.end_scan_signal.emit()
             return
         # try:
         print("in scan_item function")
         item = next(self)
         print(f"Scanned item: {item}")
         item.setFocus()
-        self.got_focus.emit(self)
-        # except StopIteration:
-        #     print("StopIteration in scan_item function")
-        #     self.reset_scan()
 
     def stop_scanning(self):
         self._scanning_worker.stop()

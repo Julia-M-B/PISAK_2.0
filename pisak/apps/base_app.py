@@ -16,8 +16,6 @@ class PisakBaseApp(QMainWindow):
         self._central_widget = PisakGridWidget(parent=self)
         self.setCentralWidget(self._central_widget)
 
-        # self.init_ui()
-
     def init_ui(self):
         self.setWindowTitle(self._title)
         self.setGeometry(0, 0, 600, 600)

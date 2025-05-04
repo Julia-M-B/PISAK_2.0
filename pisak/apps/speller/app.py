@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QWidget
 
 from pisak.apps.base_app import PisakBaseApp
 from pisak.components.keyboard import Keyboard
-from pisak.widgets.scannable import PisakScannableWidget
 
 
 # @Singleton

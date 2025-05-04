@@ -1,13 +1,12 @@
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Slot
 from PySide6.QtGui import QFocusEvent
-from PySide6.QtWidgets import QLabel, QPushButton
+from PySide6.QtWidgets import QPushButton
 
 from pisak.widgets.scannable import PisakScannableItem
 from pisak.widgets.strategies import BackToParentStrategy, Strategy
 
 
 class PisakButton(QPushButton, PisakScannableItem):
-    got_focus = Signal(PisakScannableItem)
 
     def __init__(
         self,

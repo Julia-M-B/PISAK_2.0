@@ -65,11 +65,11 @@ class PisakScannableItem:
         try:
             item = next(self._iter_items)
             print("Next item", item)
+            self._scanning_worker.loops_counter += 1
             return item
         except StopIteration:
             # raise
             print("Recurrent next call")
-            self._scanning_worker.loops_counter += 1
             return next(iter(self))
 
     @property
@@ -126,7 +126,7 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
         self._scanning_worker.next_item.connect(self.scan_item)
 
     def scan_item(self):
-        if self._scanning_worker.loops_counter == SCAN_LOOP_NUMBER:
+        if self._scanning_worker.loops_counter == SCAN_LOOP_NUMBER * len(self.items):
             print("Emitting end loop")
             self.end_scan_signal.emit()
             return

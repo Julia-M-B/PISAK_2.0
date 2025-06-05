@@ -5,7 +5,7 @@ from pisak.widgets.elements import PisakButton
 
 class PisakMainApp(PisakBaseApp):
     def __init__(self, parent=None):
-        super().__init__(parent, title="Symboler")
+        super().__init__(parent, title="Main Menu")
         self._symboler_btn = PisakButton(parent=self, text="SYMBOLER")
         self._speller_btn = PisakButton(parent=self, text="SPELLER")
         self.centralWidget().add_item(self._symboler_btn)

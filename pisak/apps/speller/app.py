@@ -16,11 +16,14 @@ class PisakSpellerApp(PisakBaseApp):
         """
         super().__init__(parent=parent, title="Speller")
         self._keyboard = Keyboard.alphabetical(parent=self.centralWidget())
+        # self._numerical_keyboard = Keyboard.numerical(parent=self.centralWidget())
         self.centralWidget().add_item(self._keyboard)
+        # self.centralWidget().add_item(self._numerical_keyboard)
 
         self.init_ui()
 
     def init_ui(self):
         super().init_ui()
         self.centralWidget().layout.addWidget(self._keyboard)
+        # self.centralWidget().layout.addWidget(self._numerical_keyboard)
         self.centralWidget().set_layout()

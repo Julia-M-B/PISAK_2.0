@@ -1,6 +1,8 @@
 import copy
 
 from PySide6.QtWidgets import QMainWindow, QSizePolicy, QStackedWidget
+from PySide6.QtGui import QKeyEvent
+from PySide6.QtCore import Qt
 
 from pisak.widgets.containers import PisakGridWidget
 from pisak.widgets.scannable import PisakScannableItem, PisakScannableWidget
@@ -15,6 +17,12 @@ class PisakBaseApp(QMainWindow):
         self._items = []
         self._central_widget = PisakGridWidget(parent=self)
         self.setCentralWidget(self._central_widget)
+
+    def __str__(self):
+        return f"{self.__class__.__name__} name={self._title}"
+
+    def __repr__(self):
+        return self.__str__()
 
     def init_ui(self):
         self.setWindowTitle(self._title)
@@ -32,10 +40,20 @@ class PisakBaseApp(QMainWindow):
         self.scan()
 
     def stop_scanning(self):
-        pass
+        print(f"Stopping scanning {self} app")
+        focused_widget = self.focusWidget()
+        if focused_widget:
+            focused_widget.parent().stop_scanning()
 
     def closeEvent(self, event):
         self.parent().closeEvent(event)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        # gdy nic nie jest skanowane, to po wciśnięciu przycisku
+        # ma się rozpocząć skanowanie
+        if not self.focusWidget() and event.key() == Qt.Key_1:
+            self.scan()
+        super().keyPressEvent(event)
 
 
 class PisakAppsWidget(QStackedWidget, PisakScannableItem):
@@ -69,3 +87,4 @@ class PisakAppsWidget(QStackedWidget, PisakScannableItem):
             old_window.stop_scanning()
         self.setCurrentWidget(new_window)
         new_window.show()
+

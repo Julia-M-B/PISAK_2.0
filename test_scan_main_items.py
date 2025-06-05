@@ -33,8 +33,5 @@ if __name__ == "__main__":
     MainWindow.symboler_btn.clicked.connect(switch_to_symboler)
 
     windows.switch_to_window(MainWindow)
-    print(1111)
-    MainWindow.buttons.scan()
-    print(2222)
 
     sys.exit(app.exec())

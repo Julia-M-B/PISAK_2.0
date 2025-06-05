@@ -53,6 +53,21 @@ class PisakGridWidget(PisakContainerWidget):
         super().__init__(parent, strategy)
         self._layout = QGridLayout()
 
+    def reset_scan(self):
+        # funkcja domyślnie podłączona do sygnału end_scan_signal
+        # w inicie klasy-rodzica: PisakScannableWidget
+
+        # nadpisanie funkcji reset_scan z klasy-rodzica: PisakScannableWidget
+        # normalnie ta funkcja wywołuje funkcję reset_scan pochodzącą
+        # z danej strategii skanowania
+
+        # w tym przypadku fukncja powinna kończyć całe skanowanie i
+        # usuwać focus z elementu (jeśli takowy jest)
+        focused_widget = self.focusWidget()
+        if focused_widget:
+            focused_widget.clearFocus()
+        self.stop_scanning()
+
 
 class PisakColumnWidget(PisakContainerWidget):
     def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):
@@ -71,13 +86,3 @@ class PisakRowWidget(PisakContainerWidget):
             raise ValueError("Item should be PisakButton.")
         self._items.append(item)
 
-    def keyPressEvent(self, event: QKeyEvent):
-        """Intercept key press events."""
-        if event.key() == Qt.Key_1:
-            focused_widget = self.focusWidget()
-            if focused_widget in self.items:
-                self._scanning_worker.stop()
-                focused_widget.click()
-                self.parentWidget().scan()
-                return
-        super().keyPressEvent(event)

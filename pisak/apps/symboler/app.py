@@ -6,6 +6,7 @@ class PisakSymbolerApp(PisakBaseApp):
     def __init__(self, parent=None):
         super().__init__(parent, title="Symboler")
         self._keyboard = Keyboard.numerical(self.centralWidget())
+        self.centralWidget().add_item(self._keyboard)
 
         self.init_ui()
 

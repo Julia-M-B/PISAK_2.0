@@ -1,5 +1,5 @@
-from PySide6.QtCore import Slot
-from PySide6.QtGui import QFocusEvent
+from PySide6.QtCore import Slot, Qt
+from PySide6.QtGui import QFocusEvent, QKeyEvent
 from PySide6.QtWidgets import QPushButton
 
 from pisak.widgets.scannable import PisakScannableItem
@@ -59,3 +59,16 @@ class PisakButton(QPushButton, PisakScannableItem):
 
     def reset_highlight_all(self):
         self.reset_highlight_self()
+
+    def keyPressEvent(self, event: QKeyEvent):
+        # przechwytywanie wciśnięcia 1,
+        # gdy jest focus na przycisku
+        if self.hasFocus() and event.key() == Qt.Key_1:
+            # zatrzymujemy skanujący worker w widgecie-rodzicu
+            self.parentWidget()._scanning_worker.stop()
+            # symulujemy kliknięcie na przycisk
+            self.click()
+            # wywołujemy metodę skan na widgecie dwa poziomy wyżej?
+            self.parentWidget().parentWidget().scan()
+            return
+        super().keyPressEvent(event)

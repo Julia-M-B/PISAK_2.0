@@ -8,16 +8,10 @@ class PisakMainApp(PisakBaseApp):
         super().__init__(parent, title="Symboler")
         self._symboler_btn = PisakButton(parent=self, text="SYMBOLER")
         self._speller_btn = PisakButton(parent=self, text="SPELLER")
-
-        self._buttons = PisakRowWidget(parent=self)
-        self._buttons.add_item(self._symboler_btn)
-        self._buttons.add_item(self._speller_btn)
+        self.centralWidget().add_item(self._symboler_btn)
+        self.centralWidget().add_item(self._speller_btn)
 
         self.init_ui()
-
-    @property
-    def buttons(self):
-        return self._buttons
 
     @property
     def symboler_btn(self):

@@ -117,6 +117,18 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
             raise ValueError("Item should be PisakScannableItem.")
         self._items.append(item)
 
+    # TODO teraz, jeśli w wierszu/kolumnie jest tylko jeden element,
+    #  to jest on skanowany tak jakby "3 razy pod rząd", bez żadnej przerwy
+    #  należałoby dodać jakiś warunek, że jeśli dany container ma tylko jeden element
+    #  to zamiast wykonywać SCAN_LOOP_NUMBER pętli skanowania,
+    #  przeskanować go tylko raz, bo teraz wygląda to tak, jakby coś się zacięło
+
+    # TODO gdy mamy tylko jeden element w kontenerze najbardziej zewnętrznym,
+    #  czyli w PisakGridWidget, to od razu skanować elementy-dzieći (wiersze
+    #  lub kolumny) tego jedynego elementu siedzącego w Gridzie;
+    #  bo teraz skanowanie zaczyna się od skanowania elementów Grida, czyli tak
+    #  naprawdę x razy pod rząd podświetlamy ten sam element, bez przerw między
+    #  podświetleniami
     def scan(self):
         iter(self)
         pool = QThreadPool.globalInstance()
@@ -130,7 +142,6 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
             print("Emitting end loop")
             self.end_scan_signal.emit()
             return
-        # try:
         print("in scan_item function")
         item = next(self)
         print(f"Scanned item: {item}")

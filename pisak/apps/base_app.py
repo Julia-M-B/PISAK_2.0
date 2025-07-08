@@ -31,6 +31,9 @@ class PisakBaseApp(QMainWindow):
         self._central_widget.setGeometry(0, 0, self.height(), self.width())
         self._central_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._central_widget.show()
+        self.setStyleSheet("""
+                            background-color: #d9cfc5;
+                            """)
 
     def scan(self):
         self.centralWidget().scan()

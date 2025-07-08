@@ -1,12 +1,14 @@
-from PySide6.QtCore import Slot, Qt
-from PySide6.QtGui import QFocusEvent, QKeyEvent
-from PySide6.QtWidgets import QPushButton
+from PySide6.QtCore import Slot, Qt, Signal
+from PySide6.QtGui import QFocusEvent, QKeyEvent, QFont
+from PySide6.QtWidgets import QPushButton, QLabel
 
 from pisak.widgets.scannable import PisakScannableItem
 from pisak.widgets.strategies import BackToParentStrategy, Strategy
 
 
 class PisakButton(QPushButton, PisakScannableItem):
+
+    send_text_signal = Signal(QPushButton)
 
     def __init__(
         self,
@@ -16,17 +18,33 @@ class PisakButton(QPushButton, PisakScannableItem):
     ):
         super().__init__(parent=parent, text=text)
         self._scanning_strategy = scanning_strategy
+        self._text = text
 
         self.init_ui()
         self.clicked.connect(self.button_clicked)
 
     def init_ui(self):
-        self.setStyleSheet("background-color: blue;")
+        self.setFont(QFont("Arial", 16))
+        self.setStyleSheet("""
+                            background-color: #ede4da;
+                            color: black;
+                            border-style: solid;
+                            border-width: 2px;
+                            border-color: black;
+                            border-radius: 5px;
+                            min-height: 50px;
+                            font-weight: bold;
+                            """)
+
+    @property
+    def text(self):
+        return self._text
 
     # test slot
     @Slot()
     def button_clicked(self) -> None:
         print(f"Button {str(self)} was clicked!")
+        self.send_text_signal.emit(self)
 
     def focusInEvent(self, event: QFocusEvent):
         if event.gotFocus():
@@ -49,10 +67,19 @@ class PisakButton(QPushButton, PisakScannableItem):
         self._scanning_strategy.reset_scan(self)
 
     def highlight_self(self):
-        self.setStyleSheet("background-color: green;")
+        self.setStyleSheet("""
+                            background-color: #5ea9eb;
+                            color: black;
+                            border-style: solid;
+                            border-width: 2px;
+                            border-color: #9dccf5;
+                            border-radius: 5px;
+                            min-height: 50px;
+                            font-weight: bold;
+                            """)
 
     def reset_highlight_self(self):
-        self.setStyleSheet("background-color: blue;")
+        self.init_ui()
 
     def highlight_all(self):
         self.highlight_self()
@@ -72,3 +99,25 @@ class PisakButton(QPushButton, PisakScannableItem):
             self.parentWidget().parentWidget().scan()
             return
         super().keyPressEvent(event)
+
+
+class PisakDisplay(QLabel, PisakScannableItem):
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.init_ui()
+
+    def init_ui(self):
+        self.setFont(QFont("Arial", 16))
+        self.setAlignment(Qt.AlignVCenter)
+        self.setLineWidth(10)
+        self.setStyleSheet("""
+                            background-color: #f0f0f0;
+                            color: black;
+                            border-style: solid;
+                            border-width: 2px;
+                            border-color: black;
+                            border-radius: 5px;
+                            padding: 5px;
+                            margin-bottom: 10px;
+                            """)
+

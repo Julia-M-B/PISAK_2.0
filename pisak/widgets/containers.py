@@ -68,6 +68,10 @@ class PisakGridWidget(PisakContainerWidget):
             focused_widget.clearFocus()
         self.stop_scanning()
 
+    def init_ui(self):
+        super().init_ui()
+
+
 
 class PisakColumnWidget(PisakContainerWidget):
     def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):

@@ -1,5 +1,4 @@
 from pisak.apps.base_app import PisakBaseApp
-from pisak.widgets.containers import PisakRowWidget
 from pisak.widgets.elements import PisakButton
 
 

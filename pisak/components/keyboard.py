@@ -1,4 +1,4 @@
-from string import ascii_lowercase
+from string import ascii_uppercase
 
 from pisak.widgets.containers import PisakColumnWidget, PisakRowWidget
 from pisak.widgets.elements import PisakButton
@@ -10,6 +10,7 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
         super().__init__(parent)
         self._keyboard_layout = keyboard_layout
         self._keyboard_dim = keyboard_dim
+        self._buttons = []
         self._implement_layout()
 
     @staticmethod
@@ -20,9 +21,10 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
         """
         keyboard_dim = (4, 7)
         horizontal_size = keyboard_dim[1]
-        num_of_letters = len(ascii_lowercase)
+        characters = ascii_uppercase + " "
+        num_of_letters = len(characters)
         keyboard_layout = [
-            list(ascii_lowercase[i : i + horizontal_size])
+            list(characters[i : i + horizontal_size])
             for i in range(0, num_of_letters + 1, horizontal_size)
         ]
         return Keyboard(
@@ -52,6 +54,11 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
             for letter in row:
                 button = PisakButton(parent=row_widget, text=str(letter))
                 row_widget.add_item(button)
+                self._buttons.append(button)
             row_widget.set_layout()
             self.add_item(row_widget)
         self.set_layout()
+
+    @property
+    def buttons(self):
+        return self._buttons

@@ -2,7 +2,7 @@ from string import ascii_uppercase
 
 from pisak.widgets.containers import PisakColumnWidget, PisakRowWidget
 from pisak.widgets.elements import PisakButton
-from pisak.widgets.scannable import PisakScannableWidget
+from pisak.scanning.scannable import PisakScannableWidget
 
 
 class Keyboard(PisakColumnWidget, PisakScannableWidget):

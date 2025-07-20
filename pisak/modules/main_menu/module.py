@@ -1,8 +1,8 @@
-from pisak.apps.base_app import PisakBaseApp
+from pisak.modules.base_module import PisakBaseModule
 from pisak.widgets.elements import PisakButton
 
 
-class PisakMainApp(PisakBaseApp):
+class PisakMainModule(PisakBaseModule):
     def __init__(self, parent=None):
         super().__init__(parent, title="Main Menu")
         self._symboler_btn = PisakButton(parent=self, text="SYMBOLER")

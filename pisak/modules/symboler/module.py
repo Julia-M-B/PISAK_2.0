@@ -1,8 +1,8 @@
-from pisak.apps.base_app import PisakBaseApp
+from pisak.modules.base_module import PisakBaseModule
 from pisak.components.keyboard import Keyboard
 
 
-class PisakSymbolerApp(PisakBaseApp):
+class PisakSymbolerModule(PisakBaseModule):
     def __init__(self, parent=None):
         super().__init__(parent, title="Symboler")
         self._keyboard = Keyboard.numerical(self.centralWidget())

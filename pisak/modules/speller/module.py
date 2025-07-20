@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget
 
-from pisak.apps.base_app import PisakBaseApp
+from pisak.modules.base_module import PisakBaseModule
 from pisak.components.keyboard import Keyboard
 from pisak.widgets.elements import PisakDisplay
 
@@ -33,7 +33,7 @@ Czy powinny być dostępne strzałki? Chyba tak
 """
 
 # @Singleton
-class PisakSpellerApp(PisakBaseApp):
+class PisakSpellerModule(PisakBaseModule):
     """
     Moduł Speller aplikacji Pisak.
     """

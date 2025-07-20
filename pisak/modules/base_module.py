@@ -1,15 +1,17 @@
-import copy
-
+from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QMainWindow, QSizePolicy, QStackedWidget
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 
+from pisak.scanning.manager import ScannableManagerMeta
 from pisak.widgets.containers import PisakGridWidget
-from pisak.widgets.scannable import PisakScannableItem, PisakScannableWidget
-from pisak.widgets.strategies import TopStrategy
+from pisak.scanning.scannable import PisakScannableItem
+from pisak.scanning.strategies import TopStrategy
 
 
-class PisakBaseApp(QMainWindow):
+class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
+    start_scanning = Signal(QObject)
+
     def __init__(self, parent=None, title=""):
         super().__init__(parent)
         self._strategy = TopStrategy()
@@ -35,12 +37,9 @@ class PisakBaseApp(QMainWindow):
                             background-color: #d9cfc5;
                             """)
 
-    def scan(self):
-        self.centralWidget().scan()
-
     def show(self):
         super().show()
-        self.scan()
+        self.setFocus()
 
     def stop_scanning(self):
         print(f"Stopping scanning {self} app")
@@ -54,8 +53,8 @@ class PisakBaseApp(QMainWindow):
     def keyPressEvent(self, event: QKeyEvent):
         # gdy nic nie jest skanowane, to po wciśnięciu przycisku
         # ma się rozpocząć skanowanie
-        if not self.focusWidget() and event.key() == Qt.Key_1:
-            self.scan()
+        if (not self.focusWidget() or self.hasFocus()) and event.key() == Qt.Key_1:
+            self.start_scanning.emit(self.centralWidget())
         super().keyPressEvent(event)
 
 
@@ -74,7 +73,7 @@ class PisakAppsWidget(QStackedWidget, PisakScannableItem):
     #     return copy.copy(self._items)
 
     def add_item(self, item):
-        if not isinstance(item, PisakBaseApp):
+        if not isinstance(item, PisakBaseModule):
             raise ValueError("Item should be PisakBaseApp.")
         self._items.append(item)
 
@@ -84,7 +83,7 @@ class PisakAppsWidget(QStackedWidget, PisakScannableItem):
     def set_layout(self):
         return NotImplemented
 
-    def switch_to_window(self, new_window: PisakBaseApp):
+    def switch_to_window(self, new_window: PisakBaseModule):
         old_window = self.currentWidget()
         if old_window:
             old_window.stop_scanning()

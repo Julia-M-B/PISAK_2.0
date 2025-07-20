@@ -2,8 +2,8 @@ from PySide6.QtCore import Slot, Qt, Signal
 from PySide6.QtGui import QFocusEvent, QKeyEvent, QFont
 from PySide6.QtWidgets import QPushButton, QLabel
 
-from pisak.widgets.scannable import PisakScannableItem
-from pisak.widgets.strategies import BackToParentStrategy, Strategy
+from pisak.scanning.scannable import PisakScannableItem
+from pisak.scanning.strategies import BackToParentStrategy, Strategy
 
 
 class PisakButton(QPushButton, PisakScannableItem):
@@ -58,14 +58,6 @@ class PisakButton(QPushButton, PisakScannableItem):
         else:
             super().focusOutEvent(event)
 
-    def stop_scanning(self):
-        self._scanning_worker.stop()
-        print("Stoping scanning worker")
-
-    def reset_scan(self):
-        self.stop_scanning()
-        self._scanning_strategy.reset_scan(self)
-
     def highlight_self(self):
         self.setStyleSheet("""
                             background-color: #5ea9eb;
@@ -92,7 +84,8 @@ class PisakButton(QPushButton, PisakScannableItem):
         # gdy jest focus na przycisku
         if self.hasFocus() and event.key() == Qt.Key_1:
             # zatrzymujemy skanujący worker w widgecie-rodzicu
-            self.parentWidget()._scanning_worker.stop()
+            # self.parentWidget()._scanning_worker.stop()
+            self.parentWidget().timer.stop()
             # symulujemy kliknięcie na przycisk
             self.click()
             # wywołujemy metodę skan na widgecie dwa poziomy wyżej?
@@ -101,7 +94,7 @@ class PisakButton(QPushButton, PisakScannableItem):
         super().keyPressEvent(event)
 
 
-class PisakDisplay(QLabel, PisakScannableItem):
+class PisakDisplay(QLabel):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.init_ui()

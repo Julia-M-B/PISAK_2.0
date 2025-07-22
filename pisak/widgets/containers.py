@@ -27,28 +27,6 @@ class PisakContainerWidget(PisakScannableWidget):
     def init_ui(self):
         self.setFocusPolicy(Qt.StrongFocus)
 
-    def keyPressEvent(self, event: QKeyEvent):
-        """Intercept key press events."""
-        if event.key() == Qt.Key_1:
-            focused_widget = self.focusWidget()
-            if focused_widget in self.items:
-                self.widget_chosen.emit(focused_widget)
-                return
-        super().keyPressEvent(event)
-
-    def focusInEvent(self, event: QFocusEvent):
-        if event.gotFocus():
-            self.highlight_all()
-        else:
-            super().focusInEvent(event)
-
-    def focusOutEvent(self, event: QFocusEvent):
-        if event.lostFocus():
-            self.reset_highlight_all()
-        else:
-            super().focusOutEvent(event)
-
-
 
 class PisakGridWidget(PisakContainerWidget):
     def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):

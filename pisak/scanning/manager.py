@@ -1,12 +1,14 @@
 from PySide6.QtCore import QTimer, Slot, QObject, Signal
 from PySide6.QtWidgets import QMainWindow, QWidget
 
-
+from pisak.scanning.scannable import PisakScannableItem
 from pisak.utils import Singleton
 from pisak.config import SCAN_HIGHLIGHT_TIME, SCAN_LOOP_NUMBER
 
 import types
 from functools import wraps
+
+from pisak.widgets.elements import PisakButton
 
 QtMeta = type(QMainWindow)
 
@@ -56,6 +58,7 @@ class _ScanningManager(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.set_focus_on_item)
+        # self.managed_module = None
         self.scanned_item = None
 
         self.reset_scanning.connect(self.change_scanned_item)
@@ -75,8 +78,7 @@ class _ScanningManager(QWidget):
 
     def manage_scanning_module(self, module):
         module.start_scanning.connect(self.change_scanned_item)
-
-
+        module.key_pressed.connect(self.key_press_handler)
 
     # TODO teraz, jeśli w wierszu/kolumnie jest tylko jeden element,
     #  to jest on skanowany tak jakby "3 razy pod rząd", bez żadnej przerwy
@@ -84,12 +86,7 @@ class _ScanningManager(QWidget):
     #  to zamiast wykonywać SCAN_LOOP_NUMBER pętli skanowania,
     #  przeskanować go tylko raz, bo teraz wygląda to tak, jakby coś się zacięło
 
-    # TODO gdy mamy tylko jeden element w kontenerze najbardziej zewnętrznym,
-    #  czyli w PisakGridWidget, to od razu skanować elementy-dzieći (wiersze
-    #  lub kolumny) tego jedynego elementu siedzącego w Gridzie;
-    #  bo teraz skanowanie zaczyna się od skanowania elementów Grida, czyli tak
-    #  naprawdę x razy pod rząd podświetlamy ten sam element, bez przerw między
-    #  podświetleniami
+
 
     def scan(self):
         print(f"Scanning {self.scanned_item} with {self}")
@@ -109,18 +106,40 @@ class _ScanningManager(QWidget):
     def stop_scanning(self):
         self.timer.stop()
         print(f"Stoping scanning for {self}")
+        # TODO zmienić loop_counter na prywatny i dodać setter
+        self.scanned_item.loops_counter = 0
 
     def reset_scan(self):
         self.stop_scanning()
         new_item = self.scanned_item.scanning_strategy.reset_scan(self.scanned_item)
+        if not isinstance(new_item, PisakScannableItem):
+            new_item.setFocus()
+            return
         self.reset_scanning.emit(new_item)
+
+    @Slot()
+    def key_press_handler(self):
+        focused_widget = self.scanned_item.focusWidget()
+        if focused_widget in self.scanned_item.items:
+            if isinstance(focused_widget, PisakButton):
+                # gdy skanowany jest przycisk, to po kliknięciu na niego,
+                # chcemy skanować od nowa całą klawiaturę,
+                # a nie tylko jeden z jej rzędów
+                self.stop_scanning()
+                focused_widget.click()
+                new_item = self.scanned_item.scanning_strategy.reset_scan(
+                    self.scanned_item)
+                self.change_scanned_item(new_item)
+            else:
+                self.change_scanned_item(focused_widget)
+
 
     @Slot(QObject)
     def change_scanned_item(self, scannable_item):
         if self.timer.isActive():
             self.stop_scanning()
         self.scanned_item = scannable_item
-        self.scanned_item.widget_chosen.connect(self.change_scanned_item)
+        # self.scanned_item.widget_chosen.connect(self.change_scanned_item)
         self.scan()
 
 

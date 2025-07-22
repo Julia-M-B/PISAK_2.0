@@ -11,6 +11,7 @@ from pisak.scanning.strategies import TopStrategy
 
 class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
     start_scanning = Signal(QObject)
+    key_pressed = Signal()
 
     def __init__(self, parent=None, title=""):
         super().__init__(parent)
@@ -41,11 +42,11 @@ class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
         super().show()
         self.setFocus()
 
-    def stop_scanning(self):
-        print(f"Stopping scanning {self} app")
-        focused_widget = self.focusWidget()
-        if focused_widget:
-            focused_widget.parent().stop_scanning()
+    # def stop_scanning(self):
+    #     print(f"Stopping scanning {self} app")
+    #     focused_widget = self.focusWidget()
+    #     if focused_widget:
+    #         focused_widget.parent().stop_scanning()
 
     def closeEvent(self, event):
         self.parent().closeEvent(event)
@@ -53,8 +54,20 @@ class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
     def keyPressEvent(self, event: QKeyEvent):
         # gdy nic nie jest skanowane, to po wciśnięciu przycisku
         # ma się rozpocząć skanowanie
-        if (not self.focusWidget() or self.hasFocus()) and event.key() == Qt.Key_1:
-            self.start_scanning.emit(self.centralWidget())
+        if event.key() == Qt.Key_1:
+            if not self.focusWidget() or self.hasFocus():
+                # TODO gdy mamy tylko jeden element w kontenerze najbardziej zewnętrznym,
+                #  czyli w PisakGridWidget, to od razu skanować elementy-dzieći (wiersze
+                #  lub kolumny) tego jedynego elementu siedzącego w Gridzie;
+                #  bo teraz skanowanie zaczyna się od skanowania elementów Grida, czyli tak
+                #  naprawdę x razy pod rząd podświetlamy ten sam element, bez przerw między
+                #  podświetleniami
+                if len(self.centralWidget().items) == 1:
+                    self.start_scanning.emit(self.centralWidget().items[0])
+                else:
+                    self.start_scanning.emit(self.centralWidget())
+            else:
+                self.key_pressed.emit()
         super().keyPressEvent(event)
 
 

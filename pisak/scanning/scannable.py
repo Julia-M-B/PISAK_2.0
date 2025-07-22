@@ -1,13 +1,13 @@
 import copy
 
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtGui import QFocusEvent
 from PySide6.QtWidgets import QWidget
 
 from pisak.utils import get_id
 
 
 class PisakScannableItem:
-    widget_chosen = NotImplemented
 
     def __init__(self, *args, **kwargs):
         self._id = get_id()
@@ -59,8 +59,8 @@ class PisakScannableItem:
     def reset_highlight_all(self):
         raise NotImplementedError("Method reset_highlight_all is not implemented.")
 
+
 class PisakScannableWidget(QWidget, PisakScannableItem):
-    widget_chosen = Signal(QObject)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -78,6 +78,18 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
     def reset_highlight_all(self):
         for item in self.items:
             item.reset_highlight_all()
+
+    def focusInEvent(self, event: QFocusEvent):
+        if event.gotFocus():
+            self.highlight_all()
+        else:
+            super().focusInEvent(event)
+
+    def focusOutEvent(self, event: QFocusEvent):
+        if event.lostFocus():
+            self.reset_highlight_all()
+        else:
+            super().focusOutEvent(event)
 
 
 

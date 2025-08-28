@@ -1,23 +1,16 @@
-from pisak.apps.base_app import PisakBaseApp
-from pisak.widgets.containers import PisakRowWidget
+from pisak.modules.base_module import PisakBaseModule
 from pisak.widgets.elements import PisakButton
 
 
-class PisakMainApp(PisakBaseApp):
+class PisakMainModule(PisakBaseModule):
     def __init__(self, parent=None):
-        super().__init__(parent, title="Symboler")
+        super().__init__(parent, title="Main Menu")
         self._symboler_btn = PisakButton(parent=self, text="SYMBOLER")
         self._speller_btn = PisakButton(parent=self, text="SPELLER")
-
-        self._buttons = PisakRowWidget(parent=self)
-        self._buttons.add_item(self._symboler_btn)
-        self._buttons.add_item(self._speller_btn)
+        self.centralWidget().add_item(self._symboler_btn)
+        self.centralWidget().add_item(self._speller_btn)
 
         self.init_ui()
-
-    @property
-    def buttons(self):
-        return self._buttons
 
     @property
     def symboler_btn(self):

@@ -1,10 +1,9 @@
 from typing import Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFocusEvent, QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QLayout
 
-from pisak.widgets.elements import PisakButton
+
 from pisak.scanning.scannable import PisakScannableWidget
 from pisak.scanning.strategies import BackToParentStrategy, Strategy
 
@@ -20,7 +19,7 @@ class PisakContainerWidget(PisakScannableWidget):
         return self._layout
 
     def set_layout(self) -> None:
-        for item in self.items:
+        for item in self._items:
             self._layout.addWidget(item)
         self.setLayout(self._layout)
 
@@ -44,11 +43,4 @@ class PisakRowWidget(PisakContainerWidget):
     def __init__(self, parent, strategy: Strategy = BackToParentStrategy()):
         super().__init__(parent, strategy)
         self._layout = QHBoxLayout()
-
-    # PisakRowWidget should only contain PisakButtons
-    def add_item(self, item):
-        if not isinstance(item, PisakButton):
-            raise ValueError("Item should be PisakButton.")
-        self._items.append(item)
-
 

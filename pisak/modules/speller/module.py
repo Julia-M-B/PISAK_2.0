@@ -1,3 +1,4 @@
+from PySide6.QtGui import QKeyEvent, Qt
 from PySide6.QtWidgets import QWidget
 
 from pisak.modules.base_module import PisakBaseModule
@@ -7,6 +8,9 @@ from pisak.widgets.elements import PisakDisplay
 """
 Funkcjonalności spellerowej klawiatury:
 powinny być dwie "wymienne" klawiatury, tak jak w telefonie, na litery i na pozostałe znaki?
+
+Wymienność klawiatur można spróbować ogarnąć za pomocą QStackedWidget? 
+
 Domyślna klawiatura:
 - wszystkie litery -> kliknięcie na przycisk z literą powinno "wyświetlać" daną literę
 - spacja -> dodaje spację 
@@ -44,22 +48,17 @@ class PisakSpellerModule(PisakBaseModule):
         """
         super().__init__(parent=parent, title="Speller")
         self._display = PisakDisplay(parent=self.centralWidget())
-        self._keyboard = Keyboard.alphabetical(parent=self.centralWidget())
+        self._keyboard = Keyboard.alphabetical_upper(parent=self.centralWidget())
         self.centralWidget().add_item(self._display)
         self.centralWidget().add_item(self._keyboard)
 
         for button in self._keyboard.buttons:
-            button.send_text_signal.connect(self.display_text)
+            button.send_text_signal.connect(self._display.update_text)
 
         self.init_ui()
 
     def init_ui(self):
         super().init_ui()
-        # self.centralWidget().layout.addWidget(self._display, 0, 0)
-        # self.centralWidget().layout.addWidget(self._keyboard, 1, 0)
         self.centralWidget().set_layout()
 
-    def display_text(self, button):
-        print(1111)
-        self._display.setText(self._display.text() + button.text)
 

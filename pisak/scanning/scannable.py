@@ -1,6 +1,5 @@
 import copy
 
-from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QFocusEvent
 from PySide6.QtWidgets import QWidget
 
@@ -12,9 +11,10 @@ class PisakScannableItem:
     def __init__(self, *args, **kwargs):
         self._id = get_id()
         self._items = []
-        self._scanning_runner = None
+        self._scannable_items = []
+        # self._scanning_runner = None
         self._scanning_strategy = None
-        self.loops_counter = 0
+        self._loops_counter = 0
 
     def __str__(self):
         return f"{self.__class__.__name__} id={self._id}"
@@ -23,14 +23,14 @@ class PisakScannableItem:
         return self.__str__()
 
     def __iter__(self):
-        self._iter_items = iter(self._items)
+        self._iter_items = iter(self._scannable_items)
         return self
 
     def __next__(self):
         try:
             item = next(self._iter_items)
             print("Next item", item)
-            self.loops_counter += 1
+            self._loops_counter += 1
             return item
         except StopIteration:
             print("Recurrent next call")
@@ -41,11 +41,26 @@ class PisakScannableItem:
         return copy.copy(self._items)
 
     @property
+    def scannable_items(self):
+        return copy.copy(self._scannable_items)
+
+    @property
     def scanning_strategy(self):
         return self._scanning_strategy
 
+    @property
+    def loops_counter(self):
+        return self._loops_counter
+
+    @loops_counter.setter
+    def loops_counter(self, val):
+        self._loops_counter = val
+
     def add_item(self, item):
         raise NotImplementedError("Method add_item is not implemented.")
+
+    def add_scannable_items(self):
+        raise NotImplementedError("Method add_scannable_item is not implemented.")
 
     def init_ui(self):
         raise NotImplementedError("Method init_ui is not implemented.")
@@ -68,15 +83,17 @@ class PisakScannableWidget(QWidget, PisakScannableItem):
     def add_item(self, item):
         # if not isinstance(item, PisakScannableItem):
             # raise ValueError("Item should be PisakScannableItem.")
+        # if isinstance(item, PisakScannableItem):
+        self._items.append(item)
         if isinstance(item, PisakScannableItem):
-            self._items.append(item)
+            self._scannable_items.append(item)
 
     def highlight_all(self):
-        for item in self.items:
+        for item in self._scannable_items:
             item.highlight_all()
 
     def reset_highlight_all(self):
-        for item in self.items:
+        for item in self._scannable_items:
             item.reset_highlight_all()
 
     def focusInEvent(self, event: QFocusEvent):

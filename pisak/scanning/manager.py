@@ -56,8 +56,8 @@ class _ScanningManager(QWidget):
         _ScanningManager.last_id += 1
         print(f"Initializing ManagerWorker {self}")
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.set_focus_on_item)
+        self._timer = QTimer()
+        self._timer.timeout.connect(self.set_focus_on_item)
         # self.managed_module = None
         self.scanned_item = None
 
@@ -77,8 +77,8 @@ class _ScanningManager(QWidget):
         print(f"Stoping {self}")
 
     def manage_scanning_module(self, module):
-        module.start_scanning.connect(self.change_scanned_item)
-        module.key_pressed.connect(self.key_press_handler)
+        module.start_scanning_signal.connect(self.change_scanned_item)
+        module.key_pressed_signal.connect(self.key_press_handler)
 
     # TODO teraz, jeśli w wierszu/kolumnie jest tylko jeden element,
     #  to jest on skanowany tak jakby "3 razy pod rząd", bez żadnej przerwy
@@ -90,12 +90,12 @@ class _ScanningManager(QWidget):
 
     def scan(self):
         print(f"Scanning {self.scanned_item} with {self}")
-        self.timer.start(SCAN_HIGHLIGHT_TIME * 1000)
+        self._timer.start(SCAN_HIGHLIGHT_TIME * 1000)
         iter(self.scanned_item)
         self.set_focus_on_item()
 
     def set_focus_on_item(self):
-        if self.scanned_item.loops_counter == SCAN_LOOP_NUMBER * len(self.scanned_item.items):
+        if self.scanned_item.loops_counter == SCAN_LOOP_NUMBER * len(self.scanned_item.scannable_items):
             self.reset_scan()
             return
         print("in scan_item function")
@@ -104,9 +104,8 @@ class _ScanningManager(QWidget):
         focused_item.setFocus()
 
     def stop_scanning(self):
-        self.timer.stop()
+        self._timer.stop()
         print(f"Stoping scanning for {self}")
-        # TODO zmienić loop_counter na prywatny i dodać setter
         self.scanned_item.loops_counter = 0
 
     def reset_scan(self):
@@ -120,7 +119,7 @@ class _ScanningManager(QWidget):
     @Slot()
     def key_press_handler(self):
         focused_widget = self.scanned_item.focusWidget()
-        if focused_widget in self.scanned_item.items:
+        if focused_widget in self.scanned_item.scannable_items:
             if isinstance(focused_widget, PisakButton):
                 # gdy skanowany jest przycisk, to po kliknięciu na niego,
                 # chcemy skanować od nowa całą klawiaturę,
@@ -136,7 +135,7 @@ class _ScanningManager(QWidget):
 
     @Slot(QObject)
     def change_scanned_item(self, scannable_item):
-        if self.timer.isActive():
+        if self._timer.isActive():
             self.stop_scanning()
         self.scanned_item = scannable_item
         # self.scanned_item.widget_chosen.connect(self.change_scanned_item)

@@ -10,8 +10,8 @@ from pisak.scanning.strategies import TopStrategy
 
 
 class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
-    start_scanning = Signal(QObject)
-    key_pressed = Signal()
+    start_scanning_signal = Signal(QObject)
+    key_pressed_signal = Signal()
 
     def __init__(self, parent=None, title=""):
         super().__init__(parent)
@@ -42,12 +42,6 @@ class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
         super().show()
         self.setFocus()
 
-    # def stop_scanning(self):
-    #     print(f"Stopping scanning {self} app")
-    #     focused_widget = self.focusWidget()
-    #     if focused_widget:
-    #         focused_widget.parent().stop_scanning()
-
     def closeEvent(self, event):
         self.parent().closeEvent(event)
 
@@ -62,44 +56,11 @@ class PisakBaseModule(QMainWindow, metaclass=ScannableManagerMeta):
                 #  bo teraz skanowanie zaczyna się od skanowania elementów Grida, czyli tak
                 #  naprawdę x razy pod rząd podświetlamy ten sam element, bez przerw między
                 #  podświetleniami
-                if len(self.centralWidget().items) == 1:
-                    self.start_scanning.emit(self.centralWidget().items[0])
+                if len(self.centralWidget().scannable_items) == 1:
+                    self.start_scanning_signal.emit(self.centralWidget().scannable_items[0])
                 else:
-                    self.start_scanning.emit(self.centralWidget())
+                    self.start_scanning_signal.emit(self.centralWidget())
             else:
-                self.key_pressed.emit()
+                self.key_pressed_signal.emit()
         super().keyPressEvent(event)
-
-
-class PisakAppsWidget(QStackedWidget, PisakScannableItem):
-    """
-    klasa do przechowywania ikonek różnych modułów w głównym menu
-    singleton??
-    """
-
-    def __init__(self, parent):
-        super().__init__(parent)
-        # self._items = []
-
-    # @property
-    # def items(self):
-    #     return copy.copy(self._items)
-
-    def add_item(self, item):
-        if not isinstance(item, PisakBaseModule):
-            raise ValueError("Item should be PisakBaseApp.")
-        self._items.append(item)
-
-    def init_ui(self):
-        return NotImplemented
-
-    def set_layout(self):
-        return NotImplemented
-
-    def switch_to_window(self, new_window: PisakBaseModule):
-        old_window = self.currentWidget()
-        if old_window:
-            old_window.stop_scanning()
-        self.setCurrentWidget(new_window)
-        new_window.show()
 

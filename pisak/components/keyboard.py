@@ -1,7 +1,7 @@
-from string import ascii_uppercase
+from string import ascii_uppercase, ascii_lowercase
 
 from pisak.widgets.containers import PisakColumnWidget, PisakRowWidget
-from pisak.widgets.elements import PisakButton
+from pisak.widgets.elements import PisakButtonBuilder
 from pisak.scanning.scannable import PisakScannableWidget
 
 
@@ -13,15 +13,26 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
         self._buttons = []
         self._implement_layout()
 
+    # TODO chociaż rozwiązanie ze statecznymi metodami jest mega ładne i zwięzłe
+    #  to chyba lepiej zmienić to tak, aby konfiguracja danego keyboardu była
+    #  implementowana z zewnętrznych konfigów w postaci słowników/jsonów ??
+    #  Bo dla samych liter/cyfer, to jest to bardzo ładne i proste, ale co ze
+    #  wszystkimi dodatkowymi guzikami, typu strzałki, spacja,
+    #  znaki interpunkcyjne, etc. ??? Też chyba nie powinno być tak, że
+    #  przyciski specjalne są na sztywno przypisane do jednej klawiatury, że np.
+    #  na sztywno ustalone jest, że przecinek, kropka i wykrzyknik umieszczone
+    #  są w klawiaturze z dużymi literami, a znak zapytania, średnik i nawiasy
+    #  w klawiaturze z małymi literami
+
     @staticmethod
-    def alphabetical(parent):
+    def alphabetical_upper(parent):
         """
         Metoda tworzy i zwraca obiekt typu 'Keyboard' z literowymi przyciskami
         :param: parent — rodzic utworzonej klawiatury
         """
         keyboard_dim = (4, 7)
         horizontal_size = keyboard_dim[1]
-        characters = ascii_uppercase + " "
+        characters = ascii_uppercase
         num_of_letters = len(characters)
         keyboard_layout = [
             list(characters[i : i + horizontal_size])
@@ -29,6 +40,25 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
         ]
         return Keyboard(
             parent=parent, keyboard_layout=keyboard_layout, keyboard_dim=keyboard_dim
+        )
+
+    @staticmethod
+    def alphabetical_lower(parent):
+        """
+        Metoda tworzy i zwraca obiekt typu 'Keyboard' z literowymi przyciskami
+        :param: parent — rodzic utworzonej klawiatury
+        """
+        keyboard_dim = (4, 7)
+        horizontal_size = keyboard_dim[1]
+        characters = ascii_lowercase
+        num_of_letters = len(characters)
+        keyboard_layout = [
+            list(characters[i: i + horizontal_size])
+            for i in range(0, num_of_letters + 1, horizontal_size)
+        ]
+        return Keyboard(
+            parent=parent, keyboard_layout=keyboard_layout,
+            keyboard_dim=keyboard_dim
         )
 
     @staticmethod
@@ -52,7 +82,7 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
         for row in self._keyboard_layout:
             row_widget = PisakRowWidget(parent=self)
             for letter in row:
-                button = PisakButton(parent=row_widget, text=str(letter))
+                button = PisakButtonBuilder().set_text(str(letter)).emit_text_signal(str(letter)).build(row_widget)
                 row_widget.add_item(button)
                 self._buttons.append(button)
             row_widget.set_layout()
@@ -62,3 +92,5 @@ class Keyboard(PisakColumnWidget, PisakScannableWidget):
     @property
     def buttons(self):
         return self._buttons
+
+
